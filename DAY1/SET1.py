@@ -1,21 +1,12 @@
 
-## Set 1 – Retail Order Desk
-
-### Business Scenario
-
-A retail company processes thousands of customer orders every day. The order management system needs efficient searching, sorting, duplicate detection, order undo operations, dispatch queue management, and refund calculation.
-
----
-
-## Task 1 – Linear Search and Binary Search
-
-**Objective:** Search for customer orders using Linear Search and Binary Search and compare their performance.
-
-
-```
 import csv
 import random
 import time
+from collections import deque
+
+
+# Task 1 – Linear Search and Binary Search
+# Objective: Search for customer orders using Linear Search and Binary Search and compare their performance.
 
 def load_orders(path):
     with open(path, newline="") as f:
@@ -25,6 +16,7 @@ def load_orders(path):
         r["amount"] = float(r["amount"])
     return rows
 
+
 def linear_search(orders, target):
     comparisons = 0
     for order in orders:
@@ -32,6 +24,7 @@ def linear_search(orders, target):
         if order["orderId"] == target:
             return order, comparisons
     return None, comparisons
+
 
 def binary_search(orders, target):
     low, high, comparisons = 0, len(orders) - 1, 0
@@ -46,6 +39,7 @@ def binary_search(orders, target):
             high = mid - 1
     return None, comparisons
 
+
 def timed(fn, orders, targets):
     total_cmp = 0
     start = time.perf_counter()
@@ -53,6 +47,7 @@ def timed(fn, orders, targets):
         _, c = fn(orders, t)
         total_cmp += c
     return time.perf_counter() - start, total_cmp
+
 
 orders = load_orders("orders.csv")
 orders.sort(key=lambda o: o["orderId"])
@@ -81,24 +76,10 @@ print(f"Binary search is about {t_lin / t_bin:,.0f} times faster")
 
 missing, c = binary_search(orders, 999999)
 print("\nLook-up of a non-existent ID:", missing, "after", c, "comparisons")
-```
-
-**Time Complexity:**
-
-- Linear Search: O(n)
-- Binary Search: O(log n)
-
----
-
-## Task 2 – Bubble Sort, Merge Sort and Built-in Sort
-
-**Objective:** Sort order amounts in descending order and compare sorting algorithms.
 
 
-
-```
-import csv
-import time
+# Task 2 – Bubble Sort, Merge Sort and Built-in Sort
+# Objective: Sort order amounts in descending order and compare sorting algorithms.
 
 def bubble_sort(a, trace=False):
     a = a[:]
@@ -118,6 +99,7 @@ def bubble_sort(a, trace=False):
             break
 
     return a
+
 
 def merge_sort(a):
     if len(a) <= 1:
@@ -139,6 +121,7 @@ def merge_sort(a):
             j += 1
 
     return out + left[i:] + right[j:]
+
 
 small = [250, 90, 410, 130, 320, 175]
 
@@ -167,24 +150,10 @@ print(f"Merge sort O(n log n): {t_m:.4f} s")
 print(f"Built-in sorted(): {t_s:.4f} s")
 print("All results identical:", b == m == s)
 print("Top 3 amounts:", s[:3])
-```
-
-**Time Complexity:**
-
-- Bubble Sort: O(n²)
-- Merge Sort: O(n log n)
-- Built-in Sorting: O(n log n)
-
----
-
-## Task 3 – Duplicate Order Detection
-
-**Objective:** Identify duplicate orders using a dictionary-based approach.
 
 
-```
-import csv
-import time
+# Task 3 – Duplicate Order Detection
+# Objective: Identify duplicate orders using a dictionary-based approach.
 
 def find_duplicates(rows):
     seen = {}
@@ -201,6 +170,7 @@ def find_duplicates(rows):
 
     return duplicates
 
+
 with open("orders.csv", newline="") as f:
     rows = list(csv.DictReader(f))
 
@@ -215,20 +185,10 @@ for first, again, (cust, amt, minute) in dups:
     print(f"Order {first} repeated as {again} | {cust} | {amt} | {minute}")
 
 print(f"Time taken: {elapsed * 1000:.2f} ms")
-```
-
-**Time Complexity:** O(n) average time using a dictionary.
-
----
-
-## Task 4 – Stack and Queue
-
-**Objective:** Implement Stack for undo operations and Queue for order dispatch.
 
 
-```
-import time
-from collections import deque
+# Task 4 – Stack and Queue
+# Objective: Implement Stack for undo operations and Queue for order dispatch.
 
 class Stack:
     def __init__(self):
@@ -248,10 +208,12 @@ class Stack:
     def is_empty(self):
         return not self._data
 
+
 class Node:
     def __init__(self, value):
         self.value = value
         self.next = None
+
 
 class Queue:
     def __init__(self):
@@ -289,6 +251,7 @@ class Queue:
     def __len__(self):
         return self._size
 
+
 order = {"orderId": 100001, "amount": 168.94}
 undo = Stack()
 
@@ -318,10 +281,12 @@ while not line.is_empty():
 
 N = 200000
 
+
 def bench(label, fn):
     start = time.perf_counter()
     fn()
     return label, time.perf_counter() - start
+
 
 def custom_stack():
     s = Stack()
@@ -330,12 +295,14 @@ def custom_stack():
     while not s.is_empty():
         s.pop()
 
+
 def builtin_stack():
     s = []
     for i in range(N):
         s.append(i)
     while s:
         s.pop()
+
 
 def custom_queue():
     q = Queue()
@@ -344,6 +311,7 @@ def custom_queue():
     while not q.is_empty():
         q.dequeue()
 
+
 def builtin_queue():
     q = deque()
     for i in range(N):
@@ -351,10 +319,12 @@ def builtin_queue():
     while q:
         q.popleft()
 
+
 def list_as_queue():
     q = list(range(N // 4))
     while q:
         q.pop(0)
+
 
 print("\nTiming")
 
@@ -369,21 +339,11 @@ tests = [
 for label, fn in tests:
     name, secs = bench(label, fn)
     print(f"{name:<25} {secs:.4f} s")
-```
-
-**Concepts Used:**
-
-- Stack: LIFO (Last In, First Out)
-- Queue: FIFO (First In, First Out)
-
----
-
-## Task 5 – Greedy Algorithm and Dynamic Programming
-
-**Objective:** Calculate the minimum number of notes and coins required for a refund and compare Greedy with Dynamic Programming.
 
 
-```
+# Task 5 – Greedy Algorithm and Dynamic Programming
+# Objective: Calculate the minimum number of notes and coins required for a refund and compare Greedy with Dynamic Programming.
+
 def greedy_change(coins, amount):
     count, used = 0, []
 
@@ -396,6 +356,7 @@ def greedy_change(coins, amount):
             amount -= take * c
 
     return (count, used) if amount == 0 else (None, used)
+
 
 def dp_change(coins, amount):
     INF = float("inf")
@@ -419,6 +380,7 @@ def dp_change(coins, amount):
         a -= pick[a]
 
     return best[amount], sorted(used, reverse=True), best
+
 
 print("Part A - Indian notes and coins")
 
@@ -451,11 +413,3 @@ _, _, table = dp_change([1, 3, 4], 6)
 
 print("Amount:", *range(7))
 print("Coins:", *table)
-```
-
-**Time Complexity:**
-
-- Greedy: O(n log n) including sorting denominations
-- Dynamic Programming: O(amount × number of denominations)
-
----
